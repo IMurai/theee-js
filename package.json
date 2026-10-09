@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify.mjs",
+    "smoke": "node scripts/smoke.mjs",
     "optimize-model": "bash scripts/optimize-model.sh"
   },
   "dependencies": {

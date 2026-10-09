@@ -34,6 +34,7 @@ Skrip lainnya:
 | `npm run typecheck` | TypeScript strict tanpa kompilasi output |
 | `npm run optimize-model` | Kompresi ulang GLB (lihat bagian *Optimisasi*) |
 | `npm run verify` | Screenshot otomatis 7 sudut + audit piksel (butuh dev server berjalan) |
+| `npm run smoke` | Cek cepat build produksi terhadap `vite preview` (tanpa instrumen dev) |
 
 `npm run verify` membutuhkan Chrome/Edge lokal. Bila terdeteksi otomatis gagal,
 tetapkan path manual: `CHROME_PATH="C:\...\chrome.exe" npm run verify`.
@@ -194,6 +195,17 @@ stale. Keluar `EXIT=0` berarti semua lolos.
 
 > Catatan: pada headless Chrome tanpa GPU, rendering berjalan lewat SwiftShader
 > (software) sehingga FPS di sana **tidak** mewakili performa nyata.
+
+Untuk memastikan build produksi identik dengan dev:
+
+```bash
+npm run build && npm run preview   # terminal 1
+npm run smoke                      # terminal 2 → "SMOKE OK"
+```
+
+`smoke` tidak bergantung pada instrumen dev, jadi ia juga memverifikasi bahwa
+tidak ada error console, atribusi lisensi tampil, dan kanvas benar-benar
+merender objek pada build produksi.
 
 ---
 
