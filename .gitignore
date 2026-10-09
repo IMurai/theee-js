@@ -1,0 +1,9 @@
+node_modules/
+dist/
+assets-src/
+*.log
+.DS_Store
+.vite/
+
+# Hasil `npm run verify` (screenshot lokal, tidak ikut build)
+.shots/

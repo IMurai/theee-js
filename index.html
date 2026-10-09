@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0b0e" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0e'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%231c69d4' stroke-width='3'/%3E%3Cpath d='M16 7v18' stroke='%231c69d4' stroke-width='3'/%3E%3C/svg%3E"
+    />
+    <meta
+      name="description"
+      content="Showroom 3D interaktif BMW M4 Modified Widebody — putar, zoom, ganti warna cat, dan ambil screenshot."
+    />
+    <title>BMW M4 Widebody — 3D Showroom</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene" aria-label="Tampilan 3D mobil BMW M4 Widebody"></canvas>
+
+      <!-- Loading screen -->
+      <div id="loader" class="loader" role="status" aria-live="polite">
+        <div class="loader__inner">
+          <p class="loader__brand">BMW M4 <span>Widebody</span></p>
+          <div class="loader__track">
+            <div id="loader-bar" class="loader__bar" style="width: 0%"></div>
+          </div>
+          <p id="loader-label" class="loader__label">Menyiapkan studio…</p>
+          <p id="loader-error" class="loader__error" hidden>
+            Gagal memuat model. Pastikan file <code>public/models/bmw-m4.glb</code> tersedia,
+            lalu muat ulang halaman.
+          </p>
+          <button id="loader-retry" class="btn btn--ghost" type="button" hidden>Coba lagi</button>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <header class="topbar">
+        <p class="topbar__brand">BMW M4 <span>Widebody</span></p>
+        <div class="topbar__actions">
+          <button
+            id="btn-screenshot"
+            class="btn btn--icon"
+            type="button"
+            aria-label="Ambil screenshot"
+            title="Screenshot (S)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+          </button>
+          <button
+            id="btn-env"
+            class="btn btn--icon"
+            type="button"
+            aria-label="Ganti mode lingkungan"
+            title="Mode lingkungan (E)"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7z"/></svg>
+          </button>
+          <button
+            id="btn-panel"
+            class="btn btn--icon"
+            type="button"
+            aria-label="Buka panel pengaturan"
+            aria-expanded="false"
+            aria-controls="panel"
+            title="Panel pengaturan"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10v2H4zm12 0h4v2h-4zM4 15h4v2H4zm6 0h10v2H10z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Panel pengaturan (desktop: sidebar, mobile: bottom sheet) -->
+      <aside id="panel" class="panel" aria-label="Panel pengaturan">
+        <section class="panel__section">
+          <h2 class="panel__title">Warna cat</h2>
+          <div id="paint-swatches" class="swatches" role="radiogroup" aria-label="Preset warna cat"></div>
+          <div class="panel__row">
+            <label class="panel__label" for="paint-custom">Kustom</label>
+            <input id="paint-custom" class="swatch-input" type="color" value="#1c1c1e" />
+          </div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title">Velg</h2>
+          <div id="wheel-swatches" class="swatches" role="radiogroup" aria-label="Pilihan warna velg"></div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title">Kaliper rem</h2>
+          <div id="caliper-swatches" class="swatches" role="radiogroup" aria-label="Pilihan warna kaliper"></div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title">Sudut kamera</h2>
+          <div id="camera-presets" class="chips" role="group" aria-label="Preset kamera"></div>
+        </section>
+
+        <section class="panel__section">
+          <h2 class="panel__title">Tampilan</h2>
+          <label class="toggle">
+            <input id="toggle-lights" type="checkbox" />
+            <span>Lampu menyala</span>
+          </label>
+          <label class="toggle">
+            <input id="toggle-wheels" type="checkbox" />
+            <span>Roda berputar</span>
+          </label>
+          <label class="toggle">
+            <input id="toggle-rotate" type="checkbox" checked />
+            <span>Auto-rotate</span>
+          </label>
+        </section>
+
+        <p id="fps" class="panel__fps" hidden>FPS —</p>
+      </aside>
+
+      <!-- Hotspot anotasi -->
+      <div id="hotspots" class="hotspots" aria-hidden="true"></div>
+
+      <!-- Footer atribusi -->
+      <footer class="attribution">
+        <p>
+          "BMW M4 Modified Widebody" by
+          <a href="https://sketchfab.com/3d-models/bmw-m4-modified-widebody-knitro-builds-6e325ec23a0f41c08366472b34b8f8c8" target="_blank" rel="noopener noreferrer">knitro_builds</a>,
+          licensed under
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC-BY-4.0</a>
+          (Sketchfab).
+        </p>
+      </footer>
+
+      <p class="hint">Seret untuk memutar · Scroll untuk zoom · Hotkey 1–5 sudut kamera</p>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

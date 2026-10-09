@@ -1,0 +1,23 @@
+{
+  "name": "bmw-m4-showroom",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify.mjs",
+    "optimize-model": "bash scripts/optimize-model.sh"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0",
+    "puppeteer-core": "^24.43.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}
