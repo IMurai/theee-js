@@ -158,8 +158,10 @@ function toPhysical(
   const physical = new THREE.MeshPhysicalMaterial();
   physical.name = mat.name;
   physical.copy(mat);
-  physical.clearcoat = 1;
-  physical.clearcoatRoughness = 0.04;
+  // Sifat finish (clearcoat, roughness, metalness) TIDAK di-set di sini.
+  // Semuanya ditentukan oleh PAINT_FINISHES di config.ts dan diterapkan
+  // oleh PaintController.setFinish() — lihat src/car/paint.ts.
+  physical.clearcoat = 0;
   physical.needsUpdate = true;
   mat.dispose();
   return physical;

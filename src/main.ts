@@ -7,6 +7,8 @@ import {
   CAMERA_PRESETS,
   EXPOSURE_NIGHT,
   EXPOSURE_STUDIO,
+  PAINT_FINISHES,
+  PAINT_FINISH_DEFAULT_ID,
   PAINT_PRESETS,
   PORTRAIT_ASPECT,
   PORTRAIT_DISTANCE_FACTOR,
@@ -130,6 +132,9 @@ async function boot(): Promise<void> {
 
   // --- Kontrolan mobil ----------------------------------------------------
   const paint = car ? new PaintController(car.registry) : null;
+  // WAJIB: tanpa envMap eksplisit, envMapIntensity per-finish diabaikan
+  // three.js (lihat catatan di src/car/paint.ts → setEnvironment).
+  paint?.setEnvironment(studio.environment);
   const lights = car ? new CarLights(car.registry) : null;
   const wheels = car ? createWheelAnimator(car.root) : null;
   const hotspots = car
@@ -137,10 +142,18 @@ async function boot(): Promise<void> {
     : null;
 
   // --- Preset kamera ------------------------------------------------------
-  const chips = createChips(requireDiv('camera-presets'), CAMERA_PRESETS, (preset) => {
-    rig.applyPreset(preset);
-    chips.select(preset.id);
-  });
+  const chips = createChips(
+    requireDiv('camera-presets'),
+    CAMERA_PRESETS,
+    (preset) => {
+      rig.applyPreset(preset);
+      chips.select(preset.id);
+    },
+    {
+      aria: (preset) => `Kamera ${preset.label}, hotkey ${preset.hotkey}`,
+      title: (preset) => `${preset.label} (${preset.hotkey})`,
+    },
+  );
   chips.select('three-quarter');
 
   const applyPresetByKey = (key: string) => {
@@ -167,6 +180,20 @@ async function boot(): Promise<void> {
       requestRender();
     },
   );
+
+  // --- Finish cat (matte / satin / gloss) ---------------------------------
+  // Semua nilai ada di PAINT_FINISHES (config.ts). Warna cat tidak disentuh,
+  // jadi warna yang dipilih tetap sama saat finish berganti.
+  const finishChips = createChips(
+    requireDiv('paint-finishes'),
+    PAINT_FINISHES,
+    (finish) => {
+      paint?.setFinish(finish);
+      finishChips.select(finish.id);
+      requestRender();
+    },
+  );
+  finishChips.select(PAINT_FINISH_DEFAULT_ID);
 
   const wheelSwatches = createSwatches(
     requireDiv('wheel-swatches'),
@@ -373,7 +400,7 @@ async function boot(): Promise<void> {
       hotspots: () => hotspots?.debugState() ?? null,
       /** Preset kamera yang sedang aktif (berdasarkan chip UI). */
       activePreset: () =>
-        document.querySelector('.chip--active')?.textContent ?? null,
+        document.querySelector('#camera-presets .chip--active')?.textContent ?? null,
       /**
        * Render ulang lalu baca piksel tengah canvas WebGL.
        * Verifikasi andal untuk memastikan output renderer benar-benar berubah

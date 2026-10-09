@@ -65,7 +65,8 @@ const info = await page.evaluate(() => ({
   attribution: document.body.innerText.includes('CC-BY-4.0'),
   author: document.body.innerText.includes('knitro_builds'),
   panel: !!document.getElementById('panel'),
-  presetCount: document.querySelectorAll('.chip').length,
+  presetCount: document.querySelectorAll('#camera-presets .chip').length,
+  finishCount: document.querySelectorAll('#paint-finishes .chip').length,
   paintCount: document.querySelectorAll('#paint-swatches .swatch').length,
   hotspots: document.querySelectorAll('.hotspot').length,
 }));
@@ -77,7 +78,7 @@ console.log(`URL        : ${URL}`);
 console.log(`Screenshot : ${OUT}`);
 console.log(`Atribusi   : ${info.attribution ? 'OK' : 'HILANG'} / author ${info.author ? 'OK' : 'HILANG'}`);
 console.log(`Panel      : ${info.panel ? 'OK' : 'HILANG'}`);
-console.log(`Preset kamera: ${info.presetCount} · Warna cat: ${info.paintCount} · Hotspot: ${info.hotspots}`);
+console.log(`Preset kamera: ${info.presetCount} · Finish: ${info.finishCount} · Warna cat: ${info.paintCount} · Hotspot: ${info.hotspots}`);
 console.log(`Error console: ${errors.length}`);
 for (const e of errors) console.log(`  ! ${e}`);
 
@@ -86,6 +87,7 @@ const ok =
   info.author &&
   info.panel &&
   info.presetCount === 5 &&
+  info.finishCount === 3 &&
   info.paintCount >= 6 &&
   info.hotspots >= 3 &&
   errors.length === 0;

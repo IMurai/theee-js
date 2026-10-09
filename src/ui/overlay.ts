@@ -1,4 +1,4 @@
-import type { PaintPreset, WheelPreset, CaliperPreset, CameraPreset } from '../config';
+import type { PaintPreset, WheelPreset, CaliperPreset } from '../config';
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -116,22 +116,32 @@ export function createSwatches<T extends { id: string; label: string; hex: strin
   return { select };
 }
 
-// --- Chips (preset kamera) -------------------------------------------------
+// --- Chips (preset kamera, finish cat, dsb) --------------------------------
 
-export function createChips(
+export interface ChipOptions<T> {
+  /** Label untuk pembaca layar (default: `item.label`). */
+  aria?: (item: T) => string;
+  /** Tooltip (default: nilai `aria`). */
+  title?: (item: T) => string;
+}
+
+export function createChips<T extends { id: string; label: string }>(
   container: HTMLElement,
-  items: readonly CameraPreset[],
-  onPick: (item: CameraPreset) => void,
+  items: readonly T[],
+  onPick: (item: T) => void,
+  options: ChipOptions<T> = {},
 ): { select: (id: string) => void } {
   container.replaceChildren();
   const buttons = new Map<string, HTMLButtonElement>();
 
   for (const item of items) {
+    const aria = options.aria?.(item) ?? item.label;
+    const title = options.title?.(item) ?? aria;
     const btn = el('button', 'chip');
     btn.type = 'button';
     btn.textContent = item.label;
-    btn.setAttribute('aria-label', `Kamera ${item.label}, hotkey ${item.hotkey}`);
-    btn.title = `${item.label} (${item.hotkey})`;
+    btn.setAttribute('aria-label', aria);
+    btn.title = title;
     btn.dataset.id = item.id;
 
     btn.addEventListener('click', () => onPick(item));

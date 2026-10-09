@@ -1,5 +1,10 @@
 import * as THREE from 'three';
-import { PAINT_TRANSITION_MS } from '../config';
+import {
+  PAINT_FINISH_DEFAULT_ID,
+  PAINT_TRANSITION_MS,
+  getPaintFinish,
+  type PaintFinish,
+} from '../config';
 import type { MaterialRegistry } from './registry';
 
 type ColorLike = THREE.Color | string | number;
@@ -22,12 +27,15 @@ interface Transition {
 export class PaintController {
   #materials: THREE.MeshPhysicalMaterial[];
   #transition: Transition | null = null;
+  #finish: PaintFinish;
 
   constructor(registry: MaterialRegistry) {
     this.#materials = [...registry.paintMaterials];
+    this.#finish = getPaintFinish(PAINT_FINISH_DEFAULT_ID);
     if (this.#materials[0]) {
       _current.copy(this.#materials[0].color);
     }
+    this.setFinish(this.#finish);
   }
 
   get enabled(): boolean {
@@ -61,6 +69,47 @@ export class PaintController {
     _from.copy(this.#materials[0].color);
     _to.set(color as THREE.ColorRepresentation);
     this.#transition = { startedAt: performance.now() };
+  }
+
+  /** Finish yang sedang aktif. */
+  get finish(): PaintFinish {
+    return this.#finish;
+  }
+
+  /**
+   * Terapkan finish permukaan (matte/satin/gloss).
+   *
+   * Hanya menyentuh sifat material cat — WARNA TIDAK DIUBAH, jadi warna yang
+   * sedang dipilih tetap sama saat finish berganti.
+   *
+   * `needsUpdate` dipasang karena `clearcoat` 0 ↔ >0 mengubah define shader.
+   */
+  setFinish(finish: PaintFinish): void {
+    this.#finish = finish;
+    for (const m of this.#materials) {
+      m.roughness = finish.roughness;
+      m.clearcoat = finish.clearcoat;
+      m.clearcoatRoughness = finish.clearcoatRoughness;
+      m.metalness = finish.metalness;
+      m.envMapIntensity = finish.envMapIntensity;
+      m.specularIntensity = finish.specularIntensity;
+      m.needsUpdate = true;
+    }
+  }
+
+  /**
+   * Pasang `envMap` eksplisit (tekstur PMREM studio) ke material cat.
+   *
+   * WAJIB: three.js r180 menimpa `material.envMapIntensity` dengan
+   * `scene.environmentIntensity` selama `material.envMap` masih `null`,
+   * sehingga nilai per-finish di atas tidak akan berlaku sama sekali.
+   */
+  setEnvironment(env: THREE.Texture | null): void {
+    for (const m of this.#materials) {
+      m.envMap = env;
+      m.envMapIntensity = this.#finish.envMapIntensity;
+      m.needsUpdate = true;
+    }
   }
 
   /** Dipanggil tiap frame. */

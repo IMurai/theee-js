@@ -248,5 +248,3 @@ Model 3D:
 Atribusi yang sama juga ditampilkan di footer situs. Kode proyek ini mengikuti
 lisensi aset yang dirujuk di atas untuk bagian model; sisanya bebas dipakai
 sebagaimana kebutuhan proyek.
-#   t h e e e - j s  
- 
